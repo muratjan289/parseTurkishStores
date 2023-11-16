@@ -1,17 +1,15 @@
-package com.turkish.turkishstores.service;
-
-import com.turkish.turkishstores.service.fariaHome.Item;
+package com.turkish.turkishstores.service.general;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
     @XmlRootElement
-    public class Products {
+    public class items {
         private List<Item> productList;
 
 
-        @XmlElement(name = "product")
+        @XmlElement(name = "item")
         public List<Item> getProductList() {
             return productList;
         }
