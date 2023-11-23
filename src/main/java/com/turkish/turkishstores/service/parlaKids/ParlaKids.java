@@ -33,10 +33,6 @@ public class ParlaKids {
     private static String quantityXPath ="//span[@id='divUrunStokAdediIcerik']";
 
     private static String priceXPath= "//span[@id='fiyat']//span[@class='spanFiyat'] | //span[@id='fiyat2']//span[@class='spanFiyat']";
-    private static String sizeAttributeName = "//span[@class='size_box selected']";
-
-    Set<String> existingVariantStockCodes = new HashSet<>();
-
     static String textToRemove = "14 GÜN İÇİNDE İADE DEĞİŞİM YAPILMAKTADIR." +
             "INSTAGRAM YADA WHATSAPP 0544 699 54 51 NUMARALI HATTIMIZDAN BİZE ULAŞARAK İADE & DEĞİŞİM KODU ALIP TARAFIMIZA ANLAŞMALI KARGOMUZ İLE GÖNDERMENİZ GEREKMEKTEDİR.\n" +
             "DİĞER KARGO ŞİRKETLERİNDEN TARAFIMIZA KARŞI ÖDEMELİ GÖNDERİLEN KARGOLAR KABUL EDİLMEMEKTEDİR" +

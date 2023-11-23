@@ -11,14 +11,12 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.*;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.turkish.turkishstores.service.general.WebDriverSingleton.*;
+import static com.turkish.turkishstores.service.general.WebDriverSingleton.getDriver;
 import static com.turkish.turkishstores.service.xmlMethods.CreateXml.convertListToXMLAndSaveToFile;
 
 public class FariaHome {
@@ -112,28 +110,6 @@ public class FariaHome {
 
 
     }
-
-
-
-
-
-    public static void executeVPNCommand() {
-        String command = "wg-quick up myvpn";
-        try {
-            Process process = Runtime.getRuntime().exec(command);
-            process.waitFor();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
 
     /**
      * This method extracts detailed information about a product from a webpage.

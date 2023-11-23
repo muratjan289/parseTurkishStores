@@ -23,6 +23,7 @@ public  class Item {
     private String itemUrl;
 
 
+
     @XmlElementWrapper(name = "variants")
     @XmlElement(name = "variant")
     private List<SubProduct> subProduct = new ArrayList<>();
