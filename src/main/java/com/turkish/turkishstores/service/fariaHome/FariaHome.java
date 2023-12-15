@@ -1,9 +1,6 @@
 package com.turkish.turkishstores.service.fariaHome;
 
-import com.turkish.turkishstores.service.general.Attribute;
-import com.turkish.turkishstores.service.general.Item;
-import com.turkish.turkishstores.service.general.SubProduct;
-import com.turkish.turkishstores.service.general.WebDriverSingleton;
+import com.turkish.turkishstores.service.general.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -65,7 +62,7 @@ public class FariaHome {
             try {
 
 
-                getDriver();
+                WebDriverSingleton.getDriver();
 
                 boolean isFirstLink = true;
 
@@ -100,13 +97,12 @@ public class FariaHome {
                 throw new RuntimeException(e);
             }
 
+        ItemUtils.removeItemsWithEmptyVariants(productList);
         convertListToXMLAndSaveToFile(productList, "FaryaHome.xml");
-//       finally {
             WebDriverSingleton.closeDriver(); // Закрываем драйвер в блоке finally, чтобы убедиться, что он закроется
-//        }
+
 
         System.out.println("driver is closed");
-//            convertListToXML(productList);
 
 
     }
@@ -367,9 +363,6 @@ public class FariaHome {
 
         List<String> imageUrls = new ArrayList<>();
 
-        //div[@data-index]//div[@class='slide']//img[@src]")
-        //                var picture = doc.selectXpath("//div[@class='slick-slide slick-active slick-current']//div[@class='slick-slider-main relative product-detail-page-slider  crosshair']//img[@src]");
-
         List<WebElement> allImages = driver.findElements(By.xpath("        //img[@alt='Image']"));
 
             for (WebElement img : allImages) {
@@ -389,14 +382,7 @@ public class FariaHome {
 
 
 
-    public static String extractColorFromUrl(String url) {
-        Pattern pattern = Pattern.compile("renk=([^&]*)");
-        Matcher matcher = pattern.matcher(url);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        return null;
-    }
+
 
     public static String extractStockCodeItemFromUrl(String url) {
         Pattern pattern = Pattern.compile("https://faryahome.com/([^?]+)");
@@ -414,18 +400,7 @@ public class FariaHome {
         return null;
     }
 
-//    public static String extractPrice(String input) {
-//        Pattern pattern = Pattern.compile("(\\d+,?\\d*.?\\d*)"); // Измененный шаблон для учета запятых
-//        Matcher matcher = pattern.matcher(input);
-//        if (matcher.find()) {
-//            // Заменяем запятые на точки для корректного преобразования в double
-//            String priceString = matcher.group(1).replace(",", ".");
-//            double price = Double.parseDouble(priceString);
-//            price += 40;
-//            return String.format("%.2f", price);
-//        }
-//        return null;
-//    }
+
 
     public static double extractPrice(String input) {
         Pattern pattern = Pattern.compile("([-]?\\d+[,.]\\d+)"); // Регулярное выражение для числа с плавающей точкой или запятой
@@ -433,7 +408,7 @@ public class FariaHome {
 
         if (matcher.find()) {
             String matched = matcher.group(1).replace(',', '.'); // Замена запятой на точку
-            return Double.parseDouble(matched);
+            return Double.parseDouble(matched )*1.15 + 50 ;
         } else {
             return 0; // Возвращаем 0, если число не найдено
         }

@@ -1,9 +1,6 @@
 package com.turkish.turkishstores.service.parlaKids;
 
-import com.turkish.turkishstores.service.general.Attribute;
-import com.turkish.turkishstores.service.general.Item;
-import com.turkish.turkishstores.service.general.SubProduct;
-import com.turkish.turkishstores.service.general.WebDriverSingleton;
+import com.turkish.turkishstores.service.general.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.openqa.selenium.By;
@@ -73,19 +70,29 @@ public class ParlaKids {
         WebDriver driver = WebDriverSingleton.getDriver();
 
 
-            for (String link : linkUrls) {
+            int totalLinks = linkUrls.size();
+            int linksProcessed = 0;
 
-                driver.get(String.valueOf(link));
-                System.out.println("Programma idet" + link.toString());
+            for (String link : linkUrls) {
+                driver.get(link);
+                System.out.println("Программа идет: " + link);
+                Thread.sleep(200);
                 parseItemFull(driver);
 
+                String linktt = driver.getCurrentUrl();
+                System.out.println(linktt);
+
+                linksProcessed++;
+                int linksRemaining = totalLinks - linksProcessed;
+                System.out.println("Ссылок обработано: " + linksProcessed);
+                System.out.println("Ссылок осталось: " + linksRemaining);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
 
-        removeItemsWithEmptyVariants();
+        ItemUtils.removeItemsWithEmptyVariants(productList);
                 convertListToXML(productList);
                 convertListToXMLAndSaveToFile(productList, "parlaKids.xml");
 
@@ -238,7 +245,6 @@ public class ParlaKids {
         for (WebElement img : allImages) {
             String srcValue = img.getAttribute("src");
             srcValue = transformImageUrl(srcValue);  // тут происходит трансформация
-            System.out.println(srcValue);
             if (!imageUrls.contains(srcValue)) {
                 imageUrls.add(srcValue);
             }
@@ -268,7 +274,7 @@ public class ParlaKids {
 
         if (matcher.find()) {
             String matched = matcher.group(1).replace(',', '.'); // Замена запятой на точку
-            return Double.parseDouble(matched);
+            return Double.parseDouble(matched) *1.15 + 50;
         } else {
             throw new IllegalArgumentException("No number found in the given string");
         }
@@ -276,16 +282,6 @@ public class ParlaKids {
 
 
 
-    public static void removeItemsWithEmptyVariants() {
-        Iterator<Item> iterator = productList.iterator();
-
-        while (iterator.hasNext()) {
-            Item item = iterator.next();
-            if (item.getSubProducts() == null || item.getSubProducts().isEmpty()) {
-                iterator.remove();  // Удаляем элемент, если список variants пустой
-            }
-        }
-    }
 
     public static String removeBaseUrl(String url) {
         // Удаляем базовый URL

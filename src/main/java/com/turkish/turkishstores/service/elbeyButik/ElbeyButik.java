@@ -1,9 +1,6 @@
 package com.turkish.turkishstores.service.elbeyButik;
 
-import com.turkish.turkishstores.service.general.Attribute;
-import com.turkish.turkishstores.service.general.Item;
-import com.turkish.turkishstores.service.general.SubProduct;
-import com.turkish.turkishstores.service.general.WebDriverSingleton;
+import com.turkish.turkishstores.service.general.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -31,7 +28,7 @@ public class ElbeyButik {
     private static String productNameXPath ="//h1[@class='title']";
     private static String  categoryNameXPath = "(//a[@itemprop='item']//span[@itemprop='name'])[2]";
     private static String itemStockCodeXPath = "//li[contains(text(), 'Ürün Kodu')]//span";
-    private static String itemDescriptionXPath = "(//ul[@class='detail-desc-list'])[1] | (//div[@class='p-g-mod-body  ']//div[@class='raw-content'])[1]";
+    private static By itemDescriptionXPath = By.xpath("(//div[@class='p-g-mod-body  ']//div[@class='raw-content'])[1] |(//ul[@class='detail-desc-list'])[1] ");
     private static String variantSizeElementXpath = "//a[@class='active']/text()";
     private static String quantityXPath ="//span[@class='text-success']";
 
@@ -69,25 +66,26 @@ public class ElbeyButik {
 
 
        WebDriverSingleton.getDriver();
-
-
 //                driver.get("https://www.elbeybutik.com/elbey-balikci-yaka-kaskorse-croptop-3717");
 //                parseItemFull(driver);
 
-        for (String link : links) {
+                int totalLinks = links.size();
+                int linksProcessed = 0;
 
-            driver.get(link);
-            System.out.println("Programma idet" + link.toString());
+                for (String link : links) {
+                    driver.get(link);
+                    System.out.println("Программа идет: " + link);
+                    Thread.sleep(300);
+                    parseItemFull(driver);
 
-            Thread.sleep(300);
-            parseItemFull(driver);
+                    String linktt = driver.getCurrentUrl();
+                    System.out.println(linktt);
 
-
-            String linktt = driver.getCurrentUrl();
-            System.out.println(linktt);
-
-
-        }
+                    linksProcessed++;
+                    int linksRemaining = totalLinks - linksProcessed;
+                    System.out.println("Ссылок обработано: " + linksProcessed);
+                    System.out.println("Ссылок осталось: " + linksRemaining);
+                }
 
     }//открой для полного цикла
             catch (InterruptedException e) {
@@ -100,10 +98,8 @@ public class ElbeyButik {
     }
 
         System.out.println("driver is closed");
-    //            convertListToXML(productList);
-        removeItemsWithEmptyVariants();
+        ItemUtils.removeItemsWithEmptyVariants(productList);
     convertListToXMLAndSaveToFile(productList, "ElbeyButik.xml");
-
 }
 
     public static void parseItemFull(WebDriver driver) throws InterruptedException {
@@ -138,8 +134,8 @@ public class ElbeyButik {
         var itemStockCode = doc.selectXpath(itemStockCodeXPath);
         productElbeyButik.setItemStockCode(itemStockCode.text());
 
-        var itemDescription = doc.selectXpath(itemDescriptionXPath);
-        productElbeyButik.setDescription(itemDescription.text());
+        WebElement itemDescription = driver.findElement(itemDescriptionXPath);
+        productElbeyButik.setDescription(itemDescription.getText());
 
 
 
@@ -205,6 +201,7 @@ public class ElbeyButik {
         List<String> images = sliderPhoto(driver);
         subProduct.setPictureUrls(images);
 
+
         List<Attribute> attributeList = parseAndSetPropertiesAttribute(driver);
         subProduct.setAttributes(attributeList);
 
@@ -216,7 +213,8 @@ public class ElbeyButik {
 
 
 
-    public static List<Attribute> parseAndSetPropertiesAttribute(WebDriver driver) throws InterruptedException {
+
+        public static List<Attribute> parseAndSetPropertiesAttribute(WebDriver driver) throws InterruptedException {
         Document doc = Jsoup.parse(driver.getPageSource());
         List<Attribute> attributeList = new ArrayList<>();
 
@@ -257,7 +255,7 @@ public class ElbeyButik {
         if (matcher.find()) {
             String matched = matcher.group(1).replace(',', '.'); // Замена запятой на точку
             double extraPara =  Double.parseDouble(matched);
-            double testPrice = extraPara + 60.00;
+            double testPrice = (extraPara) * 1.15 + 60.00;
 
             return testPrice;
         } else {

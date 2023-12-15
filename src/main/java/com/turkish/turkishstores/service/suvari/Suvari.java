@@ -1,9 +1,6 @@
 package com.turkish.turkishstores.service.suvari;
 
-import com.turkish.turkishstores.service.general.Attribute;
-import com.turkish.turkishstores.service.general.Item;
-import com.turkish.turkishstores.service.general.SubProduct;
-import com.turkish.turkishstores.service.general.WebDriverSingleton;
+import com.turkish.turkishstores.service.general.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,7 +11,6 @@ import org.openqa.selenium.WebElement;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -69,30 +65,31 @@ public class Suvari {
             throw new RuntimeException(e);
         }
 
-//            WebDriverSingleton.getDriver();
+            WebDriverSingleton.getDriver();
 //            driver.get("https://www.suvari.com.tr/tr/siyah-regular-kalip-kapitone-mont_mn2008700281-s09-64");
 //            parseItemFull(driver);
+        int totalLinks = links.size();
+        int linksProcessed = 0;
 
         for (String link : links) {
-
-            WebDriverSingleton.getDriver();
             driver.get(link);
-            System.out.println("Programma idet" + link.toString());
-
-            Thread.sleep(300);
+            System.out.println("Программа идет: " + link);
+            Thread.sleep(200);
             parseItemFull(driver);
-
 
             String linktt = driver.getCurrentUrl();
             System.out.println(linktt);
 
-
+            linksProcessed++;
+            int linksRemaining = totalLinks - linksProcessed;
+            System.out.println("Ссылок обработано: " + linksProcessed);
+            System.out.println("Ссылок осталось: " + linksRemaining);
         }
 
 
         WebDriverSingleton.closeDriver(); // Закрываем драйвер в блоке finally, чтобы убедиться, что он закроется
 
-//        removeItemsWithEmptyVariants();
+        ItemUtils.removeItemsWithEmptyVariants(productList);
         convertListToXMLAndSaveToFile(productList, "Suvari.xml");
 
     }
@@ -177,7 +174,7 @@ public class Suvari {
 
         var discountPrice = doc.selectXpath(discountPriceXpath);
         double testDiscountPrice  = extractNumber(discountPrice.text());
-        subProduct.setDiscountPrice(testDiscountPrice);
+//        subProduct.setDiscountPrice(testDiscountPrice);
 
         var fullPrice = doc.selectXpath(fullPriceXPath);
         double testFullPrice = extractNumber(fullPrice.text());
@@ -188,6 +185,8 @@ public class Suvari {
             // Иначе используем полную цену
             subProduct.setFullPrice(testFullPrice);
         }
+        subProduct.setDiscountPrice(subProduct.getFullPrice());
+
 
         List<String> images = sliderPhoto(driver);
         subProduct.setPictureUrls(images);
@@ -262,16 +261,6 @@ public class Suvari {
     }
 
 
-    public static void removeItemsWithEmptyVariants() {
-        Iterator<Item> iterator = productList.iterator();
-
-        while (iterator.hasNext()) {
-            Item item = iterator.next();
-            if (item.getSubProducts() == null || item.getSubProducts().isEmpty()) {
-                iterator.remove();  // Удаляем элемент, если список variants пустой
-            }
-        }
-    }
 
     public static String extractStockCode(String url) {
         // Находим последний индекс символа '_'
